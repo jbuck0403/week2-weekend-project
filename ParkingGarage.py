@@ -52,7 +52,6 @@ class ParkingGarage:
         if ticketNum == False:
             return False, message
 
-        print(self.tickets)
         if self.tickets[self._getTicketIndex(ticketNum)][ticketNum] == False:
             paid, paymentMessage = self._requestPayment(message)
             self.tickets[self._getTicketIndex(ticketNum)][ticketNum] = paid
@@ -60,7 +59,8 @@ class ParkingGarage:
             if leaving:
                 return ticketNum, paymentMessage
             else:
-                return paymentMessage
+                messageEnd = "You have 15 minutes to exit the garage.\n"
+                return f"{paymentMessage}{messageEnd}"
         else:
             message = f"Ticket #{ticketNum} is already paid for!\n"
             if leaving:
@@ -147,7 +147,7 @@ class ParkingGarage:
             if payment >= 5:
                 self.ticketsPaid += 1
                 if payment == 5:
-                    message = "Thank you for your payment!\n"
+                    message = f"Thank you for your payment!\n"
                 elif payment > 5:
                     message = f"Thank you for your payment!\nYour change is ${payment - self.ticketPrice}\n"
                 return True, message
