@@ -19,14 +19,11 @@ class ParkingGarage:
         self.ticketsPaid = 0
         self.nextTicket = 1
         self.activeTickets = []
-        
-        self.optionsDict = {
-            ParkingGarage.options[0]: self.takeTicket,
-            ParkingGarage.options[1]: self.payForParking,
-            ParkingGarage.options[2]: self.leaveGarage,
-            ParkingGarage.options[3]: self._garageStatus,
-            ParkingGarage.options[4]: self._garageStatus,
-        }
+
+        # methods in order for optionsDict
+        methods = [self.takeTicket, self.payForParking, self.leaveGarage, self._garageStatus, self._garageStatus]
+        # generated optionsDict based on given methods and desired character entries
+        self.optionsDict = {option: method for option, method in zip(ParkingGarage.options, methods)}
 
     def takeTicket(self):
         if self.availableTickets > 0:
@@ -103,7 +100,7 @@ class ParkingGarage:
         return f"Active tickets: {', '.join([str(ticketNum) for ticketNum in sorted(self.activeTickets)])}\n"
 
     def _garageStatus(self):
-        return f"There are currently {len(self.tickets)} cars parked in the garage.\nToday the garage put out {self.ticketsTaken} tickets and made ${self.ticketPrice * self.ticketsPaid}"
+        return f"{self._showActiveTickets() if len(self.activeTickets) > 0 else ''}There are currently {len(self.tickets)} cars parked in the garage.\nToday the garage put out {self.ticketsTaken} tickets and made ${self.ticketPrice * self.ticketsPaid}"
 
     def _getUserInput(self, message, runner=False, invalid=False):
         def trimUserInput(str):
