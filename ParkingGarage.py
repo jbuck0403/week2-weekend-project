@@ -1,6 +1,5 @@
 from ui import clearTerminal
 
-
 class ParkingGarage:
     options = [
         "t",
@@ -20,7 +19,14 @@ class ParkingGarage:
         self.ticketsPaid = 0
         self.nextTicket = 1
         self.activeTickets = []
-        print(self.options)
+        
+        self.optionsDict = {
+            ParkingGarage.options[0]: self.takeTicket,
+            ParkingGarage.options[1]: self.payForParking,
+            ParkingGarage.options[2]: self.leaveGarage,
+            ParkingGarage.options[3]: self._garageStatus,
+            ParkingGarage.options[4]: self._garageStatus,
+        }
 
     def takeTicket(self):
         if self.availableTickets > 0:
@@ -80,20 +86,12 @@ class ParkingGarage:
             return message
 
     def garageRunner(self):
-        optionsDict = {
-            ParkingGarage.options[0]: self.takeTicket,
-            ParkingGarage.options[1]: self.payForParking,
-            ParkingGarage.options[2]: self.leaveGarage,
-            ParkingGarage.options[3]: self._garageStatus,
-            ParkingGarage.options[4]: self._garageStatus,
-        }
-
         message = ""
         while True:
             baseMessage = "What would you like to do?\n[T]ake ticket/[P]ay for parking/[L]eave garage/[G]arage status/[C]lock out: "
             message = f"{message}{baseMessage}"
 
-            message = optionsDict[choice := self._getUserInput(message, True)]()
+            message = self.optionsDict[choice := self._getUserInput(message, True)]()
             message += "\n"
 
             if choice == "c":
