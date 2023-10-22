@@ -102,17 +102,25 @@ class ParkingGarage:
         return f"Active tickets: {', '.join([str(ticketNum) for ticketNum in sorted(self.activeTickets)])}\n"
 
     def _garageStatus(self):
+        """shows number of tickets served, cars currently in garage and money made"""
         return f"{self._showActiveTickets() if len(self.activeTickets) > 0 else ''}There are currently {len(self.tickets)} cars parked in the garage.\nToday the garage put out {self.ticketsTaken} ticket{'' if self.ticketsTaken == 1 else 's'} and made ${self.ticketPrice * self.ticketsPaid}"
 
-    def _getUserInput(self, message, runner=False, invalid=False):
+    def _getUserInput(self, message, runner=False):
+        """takes a message to print to prompt for input, then filters
+        
+        optional bool arg for if called in runner to filter for runner inputs"""
         def trimUserInput(str):
             return str.lower()[0]
+        
+        invalid = False
 
         while True:
             clearTerminal()
             try:
                 if invalid:
                     print("Invalid entry...")
+                    if runner:
+                        message = "What would you like to do?\n[T]icket / [P]ayment / [L]eaving / [G]arage status / [C]lock out: "
                 userInput = input(message)
                 invalid = False
 
@@ -194,7 +202,7 @@ class ParkingGarage:
         self.tickets = sortedList
 
     def _findLowest(self):
-        """Finds the lowest non-consecutive ticket number so tickets reflect the number of cars in the garage"""
+        """Finds the lowest missing ticket in consecutive numbers"""
         if len(self.tickets) == 0:
             self.activeTickets.append(1)
             return 1
