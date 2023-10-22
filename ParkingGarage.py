@@ -8,6 +8,8 @@ class ParkingGarage:
         "c",
         "g",
     ]
+    
+    runnerMessage = "What would you like to do?\n[T]icket / [P]ayment / [L]eaving / [G]arage status / [C]lock out: "
 
     def __init__(self, totalSpaces=50):
         self.parkingSpaces = []
@@ -25,40 +27,44 @@ class ParkingGarage:
         # generated optionsDict based on given methods and desired character entries
         self.optionsDict = {option: method for option, method in zip(ParkingGarage.options, methods)}
 
+
     def takeTicket(self):
         if self.availableTickets > 0:
             self._updateTickets()
             return self._giveTicketNumber()
+        else:
+            return "We're sorry, the garage is full..."
 
     def payForParking(
         self,
         message="You must have forgotten something... Please enjoy your stay!",
         leaving=False,
     ):
-        if emptyMessage := self._checkEmpty():
+        if emptyMessage := self._checkEmpty(): # check if the garage is empty before asking for a ticket to pay
             return emptyMessage
 
+        # get the ticket number from the user
         ticketNum = self._getUserInput(
             f"{self._showActiveTickets()}Please enter your ticket number: "
         )
 
-        if not ticketNum in self.activeTickets:
+        if not ticketNum in self.activeTickets: # if the ticket number given by the user isn't in the list of active tickets
             message = "Not an active ticket..."
-            if leaving:
+            if leaving: # if payForParking was called from the leaveGarage method
                 return False, message
             else:
                 return message
 
-        if ticketNum == False:
+        if ticketNum == False: # if the user chose to exit
             return False, message
 
-        if self.tickets[self._getTicketIndex(ticketNum)][ticketNum] == False:
-            paid, paymentMessage = self._requestPayment(message)
-            self.tickets[self._getTicketIndex(ticketNum)][ticketNum] = paid
+        if self.tickets[self._getTicketIndex(ticketNum)][ticketNum] == False: # if the ticket is unpaid
+            paid, paymentMessage = self._requestPayment(message) # request payment, paid will be true if they choose to pay, else false
+            self.tickets[self._getTicketIndex(ticketNum)][ticketNum] = paid # set the ticket to paid or leave it as unpaid
 
             if leaving:
                 return ticketNum, paymentMessage
-            else:
+            else: # if the user isn't paying while leaving, notify them they need to leave soon
                 messageEnd = "You have 15 minutes to exit the garage." if paid else ''
                 return f"{paymentMessage}{messageEnd}"
         else:
@@ -69,26 +75,27 @@ class ParkingGarage:
                 return message
 
     def leaveGarage(self):
-        if emptyMessage := self._checkEmpty():
+        if emptyMessage := self._checkEmpty(): # check if the garage is empty
             return emptyMessage
 
         ticketNum, message = self.payForParking(
             "*The gate slams shut*\nPlease enjoy your stay!", leaving=True
         )
 
-        if ticketNum and self.tickets[self._getTicketIndex(ticketNum)][ticketNum]:
+        if ticketNum and self.tickets[self._getTicketIndex(ticketNum)][ticketNum]: # if the user provides a valid ticket number
             self._updateTickets(ticketNum)
 
             finalMessage = f"{message}\nTicket #{ticketNum} left!" if message == f"Ticket #{ticketNum} is already paid for!" else f"{message}Ticket #{ticketNum} paid and left!"
             return finalMessage
-        else:
+        else: # if the user doesn't provide a valid ticket number or chooses to remain in the garage
             return message
 
     def garageRunner(self):
         message = ""
         while True:
-            baseMessage = "What would you like to do?\n[T]icket / [P]ayment / [L]eaving / [G]arage status / [C]lock out: "
-            message = f"{message}{baseMessage}"
+            baseMessage = ParkingGarage.runnerMessage
+            middleMod = '' if message == "" else '\n'
+            message = f"{message}{middleMod}{baseMessage}"
 
             message = self.optionsDict[choice := self._getUserInput(message, True)]()
             message += "\n"
@@ -118,9 +125,9 @@ class ParkingGarage:
             clearTerminal()
             try:
                 if invalid:
-                    print("Invalid entry...")
+                    print("Invalid entry...\n")
                     if runner:
-                        message = "What would you like to do?\n[T]icket / [P]ayment / [L]eaving / [G]arage status / [C]lock out: "
+                        message = ParkingGarage.runnerMessage
                 userInput = input(message)
                 invalid = False
 
@@ -209,7 +216,7 @@ class ParkingGarage:
 
         nums = []
         for ticket in self.tickets:
-            for key in (sortedKeys := sorted(ticket.keys())):
+            for key in (sortedKeys := sorted(ticket.keys())): # populate the nums list with sorted keys from the tickets list
                 nums.append(key)
 
         for i in range(1, sortedKeys[len(sortedKeys) - 1] + 2):
