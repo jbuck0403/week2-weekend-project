@@ -59,10 +59,10 @@ class ParkingGarage:
             if leaving:
                 return ticketNum, paymentMessage
             else:
-                messageEnd = "You have 15 minutes to exit the garage.\n"
+                messageEnd = "You have 15 minutes to exit the garage." if paid else ''
                 return f"{paymentMessage}{messageEnd}"
         else:
-            message = f"Ticket #{ticketNum} is already paid for!\n"
+            message = f"Ticket #{ticketNum} is already paid for!"
             if leaving:
                 return ticketNum, message
             else:
@@ -78,14 +78,16 @@ class ParkingGarage:
 
         if ticketNum and self.tickets[self._getTicketIndex(ticketNum)][ticketNum]:
             self._updateTickets(ticketNum)
-            return f"{message}Ticket #{ticketNum} paid and left!"
+
+            finalMessage = f"{message}\nTicket #{ticketNum} left!" if message == f"Ticket #{ticketNum} is already paid for!" else f"{message}Ticket #{ticketNum} paid and left!"
+            return finalMessage
         else:
             return message
 
     def garageRunner(self):
         message = ""
         while True:
-            baseMessage = "What would you like to do?\n[T]ake ticket/[P]ay for parking/[L]eave garage/[G]arage status/[C]lock out: "
+            baseMessage = "What would you like to do?\n[T]icket / [P]ayment / [L]eaving / [G]arage status / [C]lock out: "
             message = f"{message}{baseMessage}"
 
             message = self.optionsDict[choice := self._getUserInput(message, True)]()
@@ -100,7 +102,7 @@ class ParkingGarage:
         return f"Active tickets: {', '.join([str(ticketNum) for ticketNum in sorted(self.activeTickets)])}\n"
 
     def _garageStatus(self):
-        return f"{self._showActiveTickets() if len(self.activeTickets) > 0 else ''}There are currently {len(self.tickets)} cars parked in the garage.\nToday the garage put out {self.ticketsTaken} tickets and made ${self.ticketPrice * self.ticketsPaid}"
+        return f"{self._showActiveTickets() if len(self.activeTickets) > 0 else ''}There are currently {len(self.tickets)} cars parked in the garage.\nToday the garage put out {self.ticketsTaken} ticket{'' if self.ticketsTaken == 1 else 's'} and made ${self.ticketPrice * self.ticketsPaid}"
 
     def _getUserInput(self, message, runner=False, invalid=False):
         def trimUserInput(str):
@@ -132,6 +134,7 @@ class ParkingGarage:
                 continue
 
     def _checkEmpty(self):
+        """If the garage is currently empty return an empty garage message"""
         if len(self.activeTickets) == 0:
             return "The garage is currently empty..."
 
@@ -185,11 +188,13 @@ class ParkingGarage:
                 return i
 
     def _sortList(self):
+        """sort the ticket list by key in data structure List[Dict{key:value}]"""
         sortedList = sorted(self.tickets, key=lambda x: list(x.keys())[0])
-        print(sortedList)
+
         self.tickets = sortedList
 
     def _findLowest(self):
+        """Finds the lowest non-consecutive ticket number so tickets reflect the number of cars in the garage"""
         if len(self.tickets) == 0:
             self.activeTickets.append(1)
             return 1
