@@ -45,7 +45,7 @@ class ParkingGarage:
 
         # get the ticket number from the user
         ticketNum = self._getUserInput(
-            f"{self._showActiveTickets()}Please enter your ticket number: "
+            f"{self._showActiveTickets()}\nPlease enter your ticket number: "
         )
 
         if not ticketNum in self.activeTickets: # if the ticket number given by the user isn't in the list of active tickets
@@ -156,7 +156,7 @@ class ParkingGarage:
     def _requestPayment(self, message="", payment=0, error=False):
         while payment < 5:
             payment = self._getUserInput(
-                f"{message if error else ''}Your amount due is ${self.ticketPrice}\nInsert cash? (bills only)('Exit' to stay in the garage): "
+                f"{message if error else ''}Your amount due is ${self.ticketPrice}\n\nInsert cash? (bills only)('Exit' to stay in the garage): "
             )
             error = False
             if payment == False:
